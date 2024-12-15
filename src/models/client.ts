@@ -6,21 +6,19 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-import { UserRole } from "@utils/type";
-
-@Entity("users")
-export class User {
+@Entity("clients")
+export class Client {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ unique: true })
-  username: string;
+  name: string;
 
-  @Column()
-  password: string;
+  @Column({ unique: true })
+  ip: string;
 
-  @Column({ type: "enum", enum: ["admin", "user"], default: "user" })
-  role: UserRole;
+  @Column({ type: "bigint" })
+  limit: number;
 
   @CreateDateColumn({
     type: "timestamptz",
@@ -29,6 +27,9 @@ export class User {
   })
   createdAt: Date;
 
+  @Column({ select: false })
+  createdBy: string;
+
   @UpdateDateColumn({
     type: "timestamptz",
     default: () => "CURRENT_TIMESTAMP",
@@ -36,4 +37,7 @@ export class User {
     select: false,
   })
   updatedAt: Date;
+
+  @Column({ select: false })
+  updatedBy: string;
 }
