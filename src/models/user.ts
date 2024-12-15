@@ -21,9 +21,6 @@ export class User {
   @Column({ type: "enum", enum: ["admin", "user"], default: "user" })
   role: UserRole;
 
-  @Column({ default: false })
-  isActive: boolean;
-
   @CreateDateColumn({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
