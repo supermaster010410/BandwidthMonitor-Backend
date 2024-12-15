@@ -14,11 +14,23 @@ export const authenticateToken = async (
     return;
   }
 
-  jwt.verify(accessToken, ENV.JWT_SECRET, (err: any, user: any) => {
-    if (err)
+  jwt.verify(accessToken, ENV.JWT_SECRET, (err: any, decoded: any) => {
+    if (err) {
       res.status(403).json({ message: "Access token expired or invalid" });
+      return;
+    }
 
-    req.user = user;
+    req.user = decoded;
     next();
   });
+};
+
+export const authorizeRole = (roles: string[]) => {
+  return (req: any, res: Response, next: NextFunction) => {
+    if (!roles.includes(req.user.role)) {
+      res.status(403).json({ message: "You don't have permission to access." });
+      return;
+    }
+    next();
+  };
 };

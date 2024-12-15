@@ -1,3 +1,4 @@
+import { UserRole } from "@utils/type";
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -16,6 +17,12 @@ export class User {
 
   @Column()
   password: string;
+
+  @Column({ type: "enum", enum: ["admin", "user"], default: "user" })
+  role: UserRole;
+
+  @Column({ default: false })
+  isActive: boolean;
 
   @CreateDateColumn({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;

@@ -27,13 +27,20 @@ router.post("/login", async (req: Request, res: Response) => {
     return;
   }
 
+  if (!user.isActive) {
+    res.status(403).json({ message: "It's not an active user yet." });
+    return;
+  }
+
   const accessToken = generateToken(
     user.id,
+    user.role,
     ENV.JWT_SECRET,
     ACCESS_TOKEN_EXPIRES_IN
   );
   const refreshToken = generateToken(
     user.id,
+    user.role,
     ENV.JWT_REFRESH_SECRET,
     REFRESH_TOKEN_EXPIRES_IN
   );
@@ -62,30 +69,7 @@ router.post("/register", async (req: Request, res: Response) => {
     return;
   }
 
-  const newUser = await createNewUser(username, await hashPassword(password));
-
-  const accessToken = generateToken(
-    newUser.id,
-    ENV.JWT_SECRET,
-    ACCESS_TOKEN_EXPIRES_IN
-  );
-  const refreshToken = generateToken(
-    newUser.id,
-    ENV.JWT_REFRESH_SECRET,
-    REFRESH_TOKEN_EXPIRES_IN
-  );
-
-  res.cookie("access_token", accessToken, {
-    httpOnly: true,
-    secure: ENV.MODE === "production",
-    maxAge: 15 * 60 * 1000,
-  });
-
-  res.cookie("refresh_token", refreshToken, {
-    httpOnly: true,
-    secure: ENV.MODE === "production",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+  await createNewUser(username, await hashPassword(password));
 
   res.json({ message: "Register successful" });
 });
@@ -124,6 +108,7 @@ router.post(
         // Generate new access token
         const newAccessToken = generateToken(
           user.id,
+          user.role,
           ENV.JWT_SECRET,
           ACCESS_TOKEN_EXPIRES_IN
         );
