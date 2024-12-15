@@ -1,4 +1,5 @@
 import express, { Express } from "express";
+import "express-async-errors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
