@@ -27,11 +27,6 @@ router.post("/login", async (req: Request, res: Response) => {
     return;
   }
 
-  if (!user.isActive) {
-    res.status(403).json({ message: "It's not an active user yet." });
-    return;
-  }
-
   const accessToken = generateToken(
     user.id,
     user.role,
@@ -57,7 +52,7 @@ router.post("/login", async (req: Request, res: Response) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  res.json({ message: "Login successful" });
+  res.json({ id: user.id, role: user.role, username: user.username });
 });
 
 router.post("/register", async (req: Request, res: Response) => {
@@ -69,9 +64,34 @@ router.post("/register", async (req: Request, res: Response) => {
     return;
   }
 
-  await createNewUser(username, await hashPassword(password));
+  const newUser = await createNewUser(username, await hashPassword(password));
 
-  res.json({ message: "Register successful" });
+  const accessToken = generateToken(
+    newUser.id,
+    newUser.role,
+    ENV.JWT_SECRET,
+    ACCESS_TOKEN_EXPIRES_IN
+  );
+  const refreshToken = generateToken(
+    newUser.id,
+    newUser.role,
+    ENV.JWT_REFRESH_SECRET,
+    REFRESH_TOKEN_EXPIRES_IN
+  );
+
+  res.cookie("access_token", accessToken, {
+    httpOnly: true,
+    secure: ENV.MODE === "production",
+    maxAge: 15 * 60 * 1000,
+  });
+
+  res.cookie("refresh_token", refreshToken, {
+    httpOnly: true,
+    secure: ENV.MODE === "production",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  res.json({ id: newUser.id, role: newUser.role, username: newUser.username });
 });
 
 router.post("/logout", async (_: Request, res: Response) => {

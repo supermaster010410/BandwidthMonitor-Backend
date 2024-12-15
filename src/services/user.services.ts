@@ -9,5 +9,5 @@ export const getUserByUsername = async (username: string) => {
 
 export const createNewUser = async (username: string, password: string) => {
   const newUser = userRepository.create({ username, password });
-  await userRepository.save(newUser);
+  return await userRepository.save(newUser);
 };
