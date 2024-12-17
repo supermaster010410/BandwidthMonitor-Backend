@@ -40,4 +40,8 @@ export class Client {
 
   @Column({ select: false })
   updatedBy: string;
+
+  getClient() {
+    return { id: this.id, name: this.name, ip: this.ip, limit: this.limit };
+  }
 }

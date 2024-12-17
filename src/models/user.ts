@@ -19,6 +19,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ unique: true })
+  ip: string;
+
   @Column({ type: "enum", enum: ["admin", "user"], default: "user" })
   role: UserRole;
 
@@ -36,4 +39,13 @@ export class User {
     select: false,
   })
   updatedAt: Date;
+
+  getUser() {
+    return {
+      id: this.id,
+      role: this.role,
+      username: this.username,
+      ip: this.ip,
+    };
+  }
 }

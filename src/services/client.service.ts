@@ -7,11 +7,15 @@ export const getAllClients = async () => {
   return await clientRepository.find({ order: { ip: "asc" } });
 };
 
+export const getClientByIp = async (ip: string) => {
+  return await clientRepository.findOneBy({ ip: ip });
+};
+
 export const createNewClient = async (
   name: string,
   ip: string,
-  limit: number,
-  userId: string
+  userId: string,
+  limit: number = 3221225472
 ) => {
   const newClient = clientRepository.create({
     name,
@@ -21,12 +25,7 @@ export const createNewClient = async (
     updatedBy: userId,
   });
   const client = await clientRepository.save(newClient);
-  return {
-    id: client.id,
-    name: client.name,
-    ip: client.ip,
-    limit: client.limit,
-  };
+  return client.getClient();
 };
 
 export const updateClient = async (
@@ -45,12 +44,7 @@ export const updateClient = async (
   client.limit = limit;
   client.updatedBy = userId;
   await clientRepository.save(client);
-  return {
-    id: client.id,
-    name: client.name,
-    ip: client.ip,
-    limit: client.limit,
-  };
+  return client.getClient();
 };
 
 export const deleteClient = async (id: string) => {
