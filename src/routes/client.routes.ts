@@ -17,7 +17,7 @@ router.get("", async (_: Request, res: Response) => {
 router.post("", async (req: any, res: Response) => {
   3 / 0;
   const { name, ip, limit } = req.body;
-  const newClient = await createNewClient(name, ip, limit, req.user.id);
+  const newClient = await createNewClient(name, ip, req.user.id, limit);
   res.json(newClient);
 });
 

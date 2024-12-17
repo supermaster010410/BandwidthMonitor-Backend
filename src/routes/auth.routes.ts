@@ -9,6 +9,7 @@ import {
   REFRESH_TOKEN_EXPIRES_IN,
 } from "@utils/constants";
 import { authenticateToken } from "@middlewares/authentication";
+import { createNewClient, getClientByIp } from "@services/client.service";
 
 const router = Router();
 
@@ -52,11 +53,11 @@ router.post("/login", async (req: Request, res: Response) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  res.json({ id: user.id, role: user.role, username: user.username });
+  res.json(user.getUser());
 });
 
 router.post("/register", async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { username, ip, password } = req.body;
 
   const user = await getUserByUsername(username);
   if (user) {
@@ -64,7 +65,15 @@ router.post("/register", async (req: Request, res: Response) => {
     return;
   }
 
-  const newUser = await createNewUser(username, await hashPassword(password));
+  const newUser = await createNewUser(
+    username,
+    ip,
+    await hashPassword(password)
+  );
+  const client = await getClientByIp(ip);
+  if (!client) {
+    await createNewClient(username, ip, newUser.id);
+  }
 
   const accessToken = generateToken(
     newUser.id,
@@ -91,7 +100,7 @@ router.post("/register", async (req: Request, res: Response) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  res.json({ id: newUser.id, role: newUser.role, username: newUser.username });
+  res.json(newUser.getUser());
 });
 
 router.post("/logout", async (_: Request, res: Response) => {
